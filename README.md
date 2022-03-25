@@ -1,3 +1,5 @@
+![logo](banner.jpg)
+
 HourAI conversational discord bot
 
 Summary:
