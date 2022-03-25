@@ -1,0 +1,13 @@
+{
+  "TOKEN": "insert discord token",
+  "PREFIX": "$",
+  "MODEL_NAME": "archmagos/HourAI",
+  "ShanghAI": true,
+  "Hugginface": false,
+  "CHANNELID": [
+    999999999999999999
+  ],
+  "ShanghAI-URL": "http://0.0.0.0:8000/",
+  "HF-URL": "https://api-inference.huggingface.co/models/",
+  "HF-TOKEN": "huggingface token"
+}

@@ -1,0 +1,46 @@
+{
+  "address": "localhost:8000",
+  "token": "TODO",
+  "args": {
+    "max_length": 30,
+    "no_repeat_ngram_size": 3,
+    "do_sample": true,
+    "top_k": 100,
+    "top_p": 0.9,
+    "temperature": 0.8,
+    "tfs": 0.9,
+    "rep_p": 1.225,
+    "rep_p_range": 512,
+    "bad_words": [
+      " Hourai",
+      " hourai",
+      "hourai",
+      " :",
+      ":",
+      " https",
+      " http",
+      "http",
+      " https",
+      "\"",
+      " \"",
+      " [",
+      "[",
+      "-",
+      "!",
+      "!!",
+      "!!!"
+    ],
+    "logit_biases": [
+      {
+        "id": 93,
+        "bias": 0.15
+      }
+    ]
+  },
+  "gen_args": {
+    "max_length": 50,
+    "min_length": 1,
+    "eos_token_id": 198,
+    "best_of": 10
+  }
+}
