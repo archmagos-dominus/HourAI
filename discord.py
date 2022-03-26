@@ -26,6 +26,13 @@ else:
     with open("./configs/model.json") as file:
         config_model = json.load(file)
 
+#conversation history
+if not os.path.isfile("./dataset/livedata.json"):
+    sys.exit("'./dataset/livedata.json' not found! Please add it and try again.")
+else:
+    with open("./dataset/livedata.json") as file:
+        convos = json.load(file)
+
 #global vars
 api_endpoint = "blep"
 request_headers = "blep"
@@ -70,6 +77,24 @@ def query_hf(payload, api_endpoint, request_headers):
     ret = json.loads(response.content.decode('utf-8'))
     #return the decoded response
     return ret["reply"]
+
+#define function that builds dataset from the conversations the bot has
+#useful for retraining the model, or for logging
+async def buildDataSet(user, line, reply):
+    user = user.split("#")[0]
+    convos[config['linenum']] = {
+        "username": user,
+        "userquote": line,
+        "botreply": reply
+    }
+    #write dialogue to conversation file
+    with open("convos.json", "w") as outfile:
+        json.dump(convos, outfile)
+    #increment line number
+    config["linenum"] = config["linenum"] + 1
+    #write new line number to config file
+    with open("config.json", "w") as outfile:
+        json.dump(config, outfile)
 
 #setup intents for the discord client
 intents = discord.Intents.all()
@@ -213,6 +238,11 @@ async def on_message(message):
                     bot_response = '`Error: {}`'.format(response['error'])
                 else:
                     bot_response = 'Hmm... something is not right.'
+    #check if user has the roles that allow data collection
+    for role in message.author.roles:
+        if role.name == 'HourAI Helper':
+            #write message so that it can be used later to expand the dataset
+            await buildDataSet(message.author.name, msg, bot_response)
     #send the model's response to the Discord channel
     await message.channel.send(bot_response)
 

@@ -1,6 +1,6 @@
 ![logo](banner.jpg)
 
-HourAI conversational discord bot
+HourAI - GPT2 AI conversational bot
 
 Summary:
 
