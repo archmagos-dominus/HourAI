@@ -6,11 +6,12 @@ Summary:
 
 Modules needed:
 
+  -requests@2.27.1
+  -discord@1.7.3
+
 Files present:
 
--hourai.js
--config.json
--lines.csv
--data_parser.js
--convos.json
-+(model files + trainer)
+  -discord.py
+  -data_parser.js
+  -data files
+  -config files
