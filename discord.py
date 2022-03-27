@@ -27,10 +27,10 @@ else:
         config_model = json.load(file)
 
 #conversation history
-if not os.path.isfile("./dataset/livedata.json"):
+if not os.path.isfile("./datasets/livedata.json"):
     sys.exit("'./dataset/livedata.json' not found! Please add it and try again.")
 else:
-    with open("./dataset/livedata.json") as file:
+    with open("./datasets/livedata.json") as file:
         convos = json.load(file)
 
 #global vars
@@ -82,7 +82,7 @@ def query_hf(payload, api_endpoint, request_headers):
 #useful for retraining the model, or for logging
 async def buildDataSet(user, line, reply):
     user = user.split("#")[0]
-    convos[config['linenum']] = {
+    convos[config_d['linenum']] = {
         "username": user,
         "userquote": line,
         "botreply": reply
@@ -91,10 +91,10 @@ async def buildDataSet(user, line, reply):
     with open("convos.json", "w") as outfile:
         json.dump(convos, outfile)
     #increment line number
-    config["linenum"] = config["linenum"] + 1
+    config_d["linenum"] = config_d["linenum"] + 1
     #write new line number to config file
-    with open("config.json", "w") as outfile:
-        json.dump(config, outfile)
+    with open("./configs/bot_configs/discord.json", "w") as outfile:
+        json.dump(config_d, outfile)
 
 #setup intents for the discord client
 intents = discord.Intents.all()
