@@ -198,8 +198,10 @@ async def on_message(message):
     if msg.startswith(config_d['PREFIX']):
         return
     #clean up the user input
-    ##remove all special emojis
+    ##remove some special emojis
     msg = re.sub("<:.*:\d+>", "", msg)
+    ##remove the rest of the special emojis
+    msg = re.sub(":.*:", "", msg)
     ##remove all default emojis
     msg = re.sub(EMOJI_PATTERN, "", msg)
     #if message is emojos only, don't bother
