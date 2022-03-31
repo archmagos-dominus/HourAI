@@ -170,7 +170,7 @@ async def on_ready():
     #console log that the bot has finished the setting up
     print(client.user.name + ' ready to go!')
     #set bot status
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="to you."))
+    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="to you."))
 
 #do when message reveived
 @client.event
