@@ -70,6 +70,33 @@ EMOJI_PATTERN = re.compile(
     "]+"
 )
 
+#define message sanitation
+def sanitize_message(message):
+    #check for comments
+    ##if the message starts with this symbol, ignore it
+    if message.startswith(config_d['PREFIX']):
+        return False
+    #clean up the user input
+    ##remove some special emojis
+    message = re.sub("<:.*:\d+>", "", message)
+    ##remove the rest of the special emojis
+    message = re.sub(":.*:", "", message)
+    ##remove all default emojis
+    message = re.sub(EMOJI_PATTERN, "", message)
+    ##check for links and urls
+    if re.findall("\A(http|www)", message):
+        #remove said links until you reach a white space
+        temp_msg = message.split(' ', 1)
+        if (len(temp_msg)>1):
+            message = message[1]
+        else:
+            message = ''
+    #check if there is some semblance of a word left
+    if not re.findall("\w", message):
+        #if message is emojos/links only, don't bother
+        return False
+    return message
+
 #define the query function for ShanghAI
 def query_ShanghAI(payload, api_endpoint, request_headers):
     #create the json file to be sent over
@@ -207,30 +234,10 @@ async def on_message(message):
     ##check if the helper var returned true or not
     if in_channel != True:
         return
-    #helper var for ease of transformation
-    msg = message.content
-    #check for comments
-    ##if the message starts with this symbol, ignore it
-    if msg.startswith(config_d['PREFIX']):
-        return
-    #clean up the user input
-    ##remove some special emojis
-    msg = re.sub("<:.*:\d+>", "", msg)
-    ##remove the rest of the special emojis
-    msg = re.sub(":.*:", "", msg)
-    ##remove all default emojis
-    msg = re.sub(EMOJI_PATTERN, "", msg)
-    ##check for links and urls
-    if re.findall("\A(http|www)", msg):
-        #remove said links until you reach a white space
-        temp_msg = msg.split(' ', 1)
-        if (len(temp_msg)>1):
-            msg = msg[1]
-        else:
-            msg = ''
-    #check if there is some semblance of a word left
-    if not re.findall("\w", msg):
-        #if message is emojos/links only, don't bother
+    #sanitize the message
+    msg = sanitize_message(message.content)
+    #check msg
+    if not msg:
         return
     #while the bot is waiting on a response from the model
     #set status as typing for added jazz
