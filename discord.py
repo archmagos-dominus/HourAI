@@ -9,7 +9,7 @@ import re #regex module because for some reason pyshit doesn't come with it by d
 #import JSON(s)
 #discord config file
 if not os.path.isfile("configs/bot_configs/discord.json"):
-    sys.exit("'config.json' not found! Please add it and try again.")
+    sys.exit("'discord.json' not found! Please add it and try again.")
 else:
     with open("./configs/bot_configs/discord.json") as file:
         config_d = json.load(file)
@@ -18,6 +18,20 @@ else:
 #do a separate main py file that checks for the platform
 #and starts the correct bot
 #or bots, why not?
+# #twitter config file
+# if not os.path.isfile("configs/bot_configs/twitter.json"):
+#     sys.exit("'twitter.json' not found! Please add it and try again.")
+# else:
+#     with open("./configs/bot_configs/twitter.json") as file:
+#         config_t = json.load(file)
+#
+# #telegram config file
+# if not os.path.isfile("configs/bot_configs/telegram.json"):
+#     sys.exit("'telegram.json' not found! Please add it and try again.")
+# else:
+#     with open("./configs/bot_configs/telegram.json") as file:
+#         config_tg = json.load(file)
+
 
 #model config file
 if not os.path.isfile("configs/model.json"):
@@ -35,7 +49,7 @@ else:
 
 #global vars
 api_endpoint = "blep"
-request_headers = "blep"
+request_headers = "mlem"
 ready = False
 
 #define default emojis to be removed from the input text
@@ -206,8 +220,17 @@ async def on_message(message):
     msg = re.sub(":.*:", "", msg)
     ##remove all default emojis
     msg = re.sub(EMOJI_PATTERN, "", msg)
-    #if message is emojos only, don't bother
-    if not msg:
+    ##check for links and urls
+    if re.findall("\A(http|www)", msg):
+        #remove said links until you reach a white space
+        temp_msg = msg.split(' ', 1)
+        if (len(temp_msg)>1):
+            msg = msg[1]
+        else:
+            msg = ''
+    #check if there is some semblance of a word left
+    if not re.findall("\w", msg):
+        #if message is emojos/links only, don't bother
         return
     #while the bot is waiting on a response from the model
     #set status as typing for added jazz
@@ -220,7 +243,7 @@ async def on_message(message):
                 #while ShanghAI is still thinking of a valid response
                 ready = False
                 #form query payload with the content of the message
-                payload = {'inputs': {'text': message.content}, 'channel_id': message.channel.id}
+                payload = {'inputs': {'text': msg}, 'channel_id': message.channel.id}
                 #create the API endpoint for ShanghAI's generate() fucntion
                 api_endpoint = config_d['ShanghAI-URL'] + 'generate'
                 #send her the input, and store her response
@@ -230,7 +253,7 @@ async def on_message(message):
                 ready = True
         elif config_d['Hugginface']:
             #form query payload with the content of the message
-            payload = {'inputs': {'text': message.content}}
+            payload = {'inputs': {'text': msg}}
             #send query to HF and store the response
             response = query_hf(payload, api_endpoint, request_headers)
             #get the 'generated_text' value from the response
