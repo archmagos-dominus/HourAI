@@ -129,7 +129,7 @@ async def buildDataSet(user, line, reply):
         "botreply": reply
     }
     #write dialogue to conversation file
-    with open("convos.json", "w") as outfile:
+    with open("./datasets/livedata.json", "w") as outfile:
         json.dump(convos, outfile)
     #increment line number
     config_d["linenum"] = config_d["linenum"] + 1
