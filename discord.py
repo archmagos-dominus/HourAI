@@ -8,7 +8,7 @@ import re #regex module because for some reason pyshit doesn't come with it by d
 
 #import JSON(s)
 #discord config file
-if not os.path.isfile("configs/bot_configs/discord.json"):
+if not os.path.isfile("./configs/bot_configs/discord.json"):
     sys.exit("'discord.json' not found! Please add it and try again.")
 else:
     with open("./configs/bot_configs/discord.json") as file:
@@ -34,7 +34,7 @@ else:
 
 
 #model config file
-if not os.path.isfile("configs/model.json"):
+if not os.path.isfile("./configs/model.json"):
     sys.exit("'model.json' not found! Please add it and try again.")
 else:
     with open("./configs/model.json") as file:
