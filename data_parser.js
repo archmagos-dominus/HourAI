@@ -1,12 +1,10 @@
 //encode data from the history of conversation (./convos.json) to the main >
-//> trainig dataset (./lines.csv)
+//> trainig dataset (./dataset.csv)
 
 //import fs module to read/write from files
 const fs = require('fs');
 //import conversation data json
 var cvs = require('./datasets/livedata.json');
-//import dataset file
-//var dataset = require('./datasets/dataset.csv')
 //this is what you get for not making livedata an array mlem
 var line_counter = 0;
 
