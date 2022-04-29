@@ -5,6 +5,7 @@ import discord #the Discord API
 import os #for OS commands (like checking for files etc)
 import sys #for system commands commands (like exit etc)
 import re #regex module because for some reason pyshit doesn't come with it by default smh
+from Naked.toolshed.shell import muterun_js #in order to run nodejs files from python
 
 #import JSON(s)
 #discord config file
@@ -137,6 +138,14 @@ async def buildDataSet(user, line, reply):
     with open("./configs/bot_configs/discord.json", "w") as outfile:
         json.dump(config_d, outfile)
 
+#define the function that will add live data to the main dataset file
+async def addToDataSet():
+    response = muterun_js('./data_parser.js')
+    if response.exitcode == 0:
+        return response.stdout
+    else:
+        return response.stderr
+
 #setup intents for the discord client
 intents = discord.Intents.all()
 #initialize the discord client with the intents
@@ -234,6 +243,10 @@ async def on_message(message):
     ##check if the helper var returned true or not
     if in_channel != True:
         return
+    #check for dataset command
+    if (message.author.id == config_d['OWNER_ID']) and (message.content == "$DS"):
+        output = await addToDataSet()
+        await message.channel.send(output)
     #sanitize the message
     msg = sanitize_message(message.content)
     #check msg
