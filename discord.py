@@ -6,6 +6,7 @@ import os #for OS commands (like checking for files etc)
 import sys #for system commands commands (like exit etc)
 import re #regex module because for some reason pyshit doesn't come with it by default smh
 from Naked.toolshed.shell import muterun_js #in order to run nodejs files from python
+import time # for getting the current time
 
 #import JSON(s)
 #discord config file
@@ -14,25 +15,6 @@ if not os.path.isfile("./configs/bot_configs/discord.json"):
 else:
     with open("./configs/bot_configs/discord.json") as file:
         config_d = json.load(file)
-
-#todo twitter and telegram config files
-#do a separate main py file that checks for the platform
-#and starts the correct bot
-#or bots, why not?
-# #twitter config file
-# if not os.path.isfile("configs/bot_configs/twitter.json"):
-#     sys.exit("'twitter.json' not found! Please add it and try again.")
-# else:
-#     with open("./configs/bot_configs/twitter.json") as file:
-#         config_t = json.load(file)
-#
-# #telegram config file
-# if not os.path.isfile("configs/bot_configs/telegram.json"):
-#     sys.exit("'telegram.json' not found! Please add it and try again.")
-# else:
-#     with open("./configs/bot_configs/telegram.json") as file:
-#         config_tg = json.load(file)
-
 
 #model config file
 if not os.path.isfile("./configs/model.json"):
@@ -120,10 +102,19 @@ def query_hf(payload, api_endpoint, request_headers):
     #return the decoded response
     return ret["reply"]
 
-#define function that builds dataset from the conversations the bot has
+#function to give ShanghAI the compiled dataset
+def send_dataset():
+    #crete the file payload with the dataset.csv file
+    files = {'file': ('dataset.csv', open('./datasets/dataset.csv', 'rb'),'text/csv')}
+    #PUT request to ShanghAI's 'dataset_transfer' endpoint
+    requests.put(config_d['ShanghAI-URL']+'dataset_transfer', headers={}, files=files, verify=False)
+
+#define function that builds livedata.json from the conversations the bot has
 #useful for retraining the model, or for logging
-async def buildDataSet(user, line, reply):
+async def append_chat_history(user, line, reply):
+    #create the username
     user = user.split("#")[0]
+    #create the dialogue object
     convos[config_d['linenum']] = {
         "username": user,
         "userquote": line,
@@ -139,9 +130,27 @@ async def buildDataSet(user, line, reply):
         json.dump(config_d, outfile)
 
 #define the function that will add live data to the main dataset file
-async def addToDataSet():
+async def build_dataset():
+    #run the data_parser.js script
     response = muterun_js('./data_parser.js')
+    #check if it finished with no errors
     if response.exitcode == 0:
+        #send dataset to ShanghAI for training
+        send_dataset()
+        #reset the convos object
+        convos = {}
+        #crete the backup file
+        os.rename('./datasets/livedata.json','./datasets/livedata.{}.bk'.format(time.time()))
+        #reset teh livedata.json file
+        with open('./datasets/livedata.json','rw') as file:
+            json.dump(convos, file)
+            convos = json.load(file)
+        #reset the linenum
+        config_d["linenum"] = 0
+        #write new line number to config file
+        with open("./configs/bot_configs/discord.json", "w") as outfile:
+            json.dump(config_d, outfile)
+        #return the output of the script
         return response.stdout
     else:
         return response.stderr
@@ -245,7 +254,7 @@ async def on_message(message):
         return
     #check for dataset command
     if (message.author.id == config_d['OWNER_ID']) and (message.content == "$DS"):
-        output = await addToDataSet()
+        output = await build_dataset()
         await message.channel.send(output)
     #sanitize the message
     msg = sanitize_message(message.content)
@@ -289,7 +298,7 @@ async def on_message(message):
     for role in message.author.roles:
         if role.name == 'HourAI Helper':
             #write message so that it can be used later to expand the dataset
-            await buildDataSet(message.author.name, msg, bot_response)
+            await append_chat_history(message.author.name, msg, bot_response)
     #send the model's response to the Discord channel
     await message.channel.send(bot_response)
 
