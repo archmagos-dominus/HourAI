@@ -74,6 +74,9 @@ def sanitize_message(message):
             message = message[1]
         else:
             message = ''
+    #check for `?` message and replace it with `What?`
+    if message == '?':
+        message = 'What?'
     #check if there is some semblance of a word left
     if not re.findall("\w", message):
         #if message is emojos/links only, don't bother
