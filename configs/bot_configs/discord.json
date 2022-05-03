@@ -11,5 +11,8 @@
   "ShanghAI-URL": "http://0.0.0.0:8000/",
   "HF-URL": "https://api-inference.huggingface.co/models/",
   "HF-TOKEN": "insert your hugginface token",
-  "linenum": 0
+  "linenum": 0,
+  "banned_users": [
+    0,
+  ]
 }

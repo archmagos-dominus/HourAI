@@ -246,14 +246,13 @@ async def on_message(message):
     #restrict HourAI to her channels
     ##helper var
     in_channel = False
-    ##iterate through the 'CHANNELID' array in the config
-    for id in config_d["CHANNELID"]:
-        ###check if the channel ID is in the array
-        if message.channel.id == id:
-            ####set helper var
-            in_channel = True
+    if message.channel.id in config_d['CHANNELID']:
+        in_channel = True
     ##check if the helper var returned true or not
     if in_channel != True:
+        return
+    #check for banned users
+    if message.author.id in config_d['banned_users']:
         return
     #check for dataset command
     if (message.author.id == config_d['OWNER_ID']) and (message.content == "$DS"):
