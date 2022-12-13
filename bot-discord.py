@@ -103,7 +103,7 @@ def query_hf(payload, api_endpoint, request_headers):
     #decode the content of the response
     ret = json.loads(response.content.decode('utf-8'))
     #return the decoded response
-    return ret["reply"]
+    return ret["generated_text"]
 
 #function to give ShanghAI the compiled dataset
 def send_dataset():
@@ -194,7 +194,7 @@ async def on_ready():
             request_headers = {'content-type': "application/json", 'cache-control': "no-cache"}
             ##create the payload necessary for ShanghAI's load() function
             payload = {
-                "model": config_d['MODEL_NAME'],
+                "model": "./" + config_d['MODEL_NAME'],
                 "args": config_model['args']
                 }
             #send the required data to ShanghAI so that sge begins loading the model
@@ -224,7 +224,7 @@ async def on_ready():
         #make a test query to wake the API up
         resp = query_hf({'inputs': {'text': 'Hello!'}}, api_endpoint, request_headers)
         #print the time it will take her to wake up
-        print("Model loading... ETA: " + str(resp.get('estimated_time')))
+        print("Model loading...")
     #if neither backend is specified uhhhhh
     else:
         #no API specified, please do that
@@ -238,7 +238,7 @@ async def on_ready():
 @client.event
 async def on_message(message):
     #globals
-    global ready
+    global ready, api_endpoint
     #ignore bots
     ##maybe add a second bot that she can talk too at some point                <<<
     if message.author.bot:
@@ -288,7 +288,7 @@ async def on_message(message):
             #send query to HF and store the response
             response = query_hf(payload, api_endpoint, request_headers)
             #get the 'generated_text' value from the response
-            bot_response = response.get('generated_text', None)
+            bot_response = response
             #we may get ill-formed response if the model hasn't fully loaded
             #or has timed out
             if not bot_response:
