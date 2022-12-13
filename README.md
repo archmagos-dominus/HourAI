@@ -11,7 +11,7 @@ Modules needed:
 
 Files present:
 
-  - discord.py - the main discord bot file
+  - bot-discord.py - the main discord bot file
   - data_parser.js - used to parse the livedata.json into dataset.csv
   - datasets/ - stores data
     - dataset.csv - main dataset used for training
