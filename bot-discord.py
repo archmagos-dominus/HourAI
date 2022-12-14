@@ -232,7 +232,7 @@ async def on_ready():
         resp = query_hf({'inputs': {'text': 'Hello!'}}, api_endpoint, request_headers)
         #print the time it will take her to wake up
         if "estimated_time" in resp:
-            print("Model loading..." + resp["estimated_time"])
+            print("Model loading... ETA: {}".format(resp["estimated_time"]))
     #if neither backend is specified uhhhhh
     else:
         #no API specified, please do that
@@ -297,6 +297,8 @@ async def on_message(message):
             response = query_hf(payload, api_endpoint, request_headers)
             #get the 'generated_text' value from the response
             bot_response = response
+            if 'estimated_time' in response:
+                bot_response = "Loading, please wait {} seconds".format(response["estimated_time"])
             if not bot_response:
                 bot_response = "Error, please check terminal."
     #check if user has the roles that allow data collection
