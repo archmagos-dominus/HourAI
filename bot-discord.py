@@ -103,7 +103,14 @@ def query_hf(payload, api_endpoint, request_headers):
     #decode the content of the response
     ret = json.loads(response.content.decode('utf-8'))
     #return the decoded response
-    return ret["generated_text"]
+    #if there are any errors, send them over to the terminal
+    if "error" in ret:
+        print(ret)
+        #also, send them forwards anyway, so we may get the estimated time if possivle
+        return ret
+    #if there are no erros, return that sweet sweet ai generated text
+    if "generated_text" in ret:
+        return ret["generated_text"]
 
 #function to give ShanghAI the compiled dataset
 def send_dataset():
@@ -224,7 +231,8 @@ async def on_ready():
         #make a test query to wake the API up
         resp = query_hf({'inputs': {'text': 'Hello!'}}, api_endpoint, request_headers)
         #print the time it will take her to wake up
-        print("Model loading...")
+        if "estimated_time" in resp:
+            print("Model loading..." + resp["estimated_time"])
     #if neither backend is specified uhhhhh
     else:
         #no API specified, please do that
@@ -289,13 +297,8 @@ async def on_message(message):
             response = query_hf(payload, api_endpoint, request_headers)
             #get the 'generated_text' value from the response
             bot_response = response
-            #we may get ill-formed response if the model hasn't fully loaded
-            #or has timed out
             if not bot_response:
-                if 'error' in response:
-                    bot_response = '`Error: {}`'.format(response['error'])
-                else:
-                    bot_response = 'Hmm... something is not right.'
+                bot_response = "Error, please check terminal."
     #check if user has the roles that allow data collection
     for role in message.author.roles:
         if role.name == 'HourAI Helper':
